@@ -46,8 +46,28 @@ export async function sendVerificationCodeViaSmtp(
       ].join("\n\n"),
     });
     if (!result.accepted.length) throw new Error("No recipient accepted.");
-  } catch {
+  } catch (error) {
     // Provider errors can contain addresses, credentials or raw SMTP responses.
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? error.code
+        : undefined;
+    const knownCodes = [
+      "EAUTH",
+      "ETIMEDOUT",
+      "ECONNECTION",
+      "ESOCKET",
+      "EDNS",
+      "EENVELOPE",
+      "EMESSAGE",
+      "ETLS",
+    ];
+    console.error("[email] smtp_delivery_failed", {
+      code:
+        typeof code === "string" && knownCodes.includes(code)
+          ? code
+          : "UNKNOWN",
+    });
     throw new Error("Could not send the verification email.");
   } finally {
     transporter.close();

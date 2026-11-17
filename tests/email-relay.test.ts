@@ -42,6 +42,7 @@ function request(body: unknown = payload, token = secret) {
 }
 
 beforeEach(() => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
   backend.env = {
     NEXT_PUBLIC_APP_URL: "https://shop.example.test",
     MONGODB_URI: "mongodb://127.0.0.1:27017/test",
@@ -68,6 +69,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   vi.resetAllMocks();
+  vi.restoreAllMocks();
 });
 
 describe("verification email relay", () => {
@@ -136,17 +138,32 @@ describe("verification email relay", () => {
   });
 
   it("does not report delivery or expose provider details when Gmail fails", async () => {
-    smtp.sendMail.mockRejectedValue(new Error("private-provider-error"));
+    smtp.sendMail.mockRejectedValue(
+      Object.assign(new Error("private-provider-error"), {
+        code: "EAUTH",
+        response: "private-provider-response",
+      }),
+    );
     const response = await POST(request());
     expect(response.status).toBe(503);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
     expect(await response.text()).not.toContain("private-provider-error");
+    expect(console.error).toHaveBeenCalledWith("[email] smtp_delivery_failed", {
+      code: "EAUTH",
+    });
+    expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toMatch(
+      /private-provider|customer@example|012345/,
+    );
     expect(smtp.close).toHaveBeenCalledTimes(1);
   });
 
   it("fails cleanly for missing SMTP settings or rejected recipients", async () => {
     vi.stubEnv("SMTP_PASS", "");
     expect((await POST(request())).status).toBe(503);
+    expect(console.error).toHaveBeenCalledWith(
+      "[email] smtp_configuration_invalid",
+      { keys: ["SMTP_PASS"] },
+    );
     expect(smtp.sendMail).not.toHaveBeenCalled();
     vi.stubEnv("SMTP_PASS", smtpSettings.SMTP_PASS);
     smtp.sendMail.mockResolvedValue({ accepted: [] });

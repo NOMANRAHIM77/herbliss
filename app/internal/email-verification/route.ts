@@ -1,6 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { parseSmtpEnv } from "@/lib/env-schema";
+import { EnvironmentValidationError, parseSmtpEnv } from "@/lib/env-schema";
 import { sendVerificationCodeViaSmtp } from "@/lib/smtp";
 
 export const runtime = "nodejs";
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
   }
   const secret = process.env.EMAIL_RELAY_SECRET;
   if (!secret || secret.length < 32) {
+    console.error("[email] relay_secret_missing_or_short");
     return reply({ error: "Email delivery is not configured." }, 503);
   }
   const digest = (value: string) => createHash("sha256").update(value).digest();
@@ -76,7 +77,12 @@ export async function POST(request: Request) {
       payload.code,
     );
     return reply({ sent: true }, 200);
-  } catch {
+  } catch (error) {
+    if (error instanceof EnvironmentValidationError) {
+      console.error("[email] smtp_configuration_invalid", {
+        keys: error.issues.map(({ key }) => key),
+      });
+    }
     return reply({ error: "Could not send the verification email." }, 503);
   }
 }

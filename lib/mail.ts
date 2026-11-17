@@ -37,16 +37,26 @@ export async function sendVerificationCode(
           signal: AbortSignal.timeout(40_000),
         },
       );
-      if (!response.ok || (await response.json()).sent !== true) {
+      if (!response.ok) {
+        console.error("[email] relay_http_error", { status: response.status });
         throw new Error("Email relay failed.");
+      }
+      if ((await response.json()).sent !== true) {
+        throw new Error("Email relay returned an unexpected response.");
       }
       return;
     } catch {
       // Never surface the relay secret, recipient, code or upstream response.
+      console.error("[email] relay_delivery_failed");
       throw new Error("Could not send the verification email.");
     }
   }
 
+  if (process.env.RENDER === "true") {
+    console.warn(
+      "[email] direct_smtp_on_render: Render Free requires EMAIL_DELIVERY=relay",
+    );
+  }
   await sendVerificationCodeViaSmtp(parseSmtpEnv(process.env), email, code);
 }
 
