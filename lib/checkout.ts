@@ -10,5 +10,5 @@ export type CheckoutResult = {
   id: string;
   reference: string;
   receiptPath: string | null;
-  notificationAvailable: boolean;
+  whatsappUrl: string;
 };

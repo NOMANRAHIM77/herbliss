@@ -10,7 +10,7 @@ import {
   type ReceiptMimeType,
 } from "@/lib/checkout";
 import { site } from "@/content/site";
-import { checkoutWhatsAppConfig } from "@/lib/checkout-whatsapp";
+import { checkoutWhatsAppUrl } from "@/lib/checkout-whatsapp";
 import { getEnv } from "@/lib/env";
 import { orderRecords, receiptPath, type OrderRecord } from "@/lib/orders";
 
@@ -250,7 +250,7 @@ export async function POST(request: Request) {
       id: saved._id,
       reference: saved.reference,
       receiptPath: saved.receipt ? receiptPath(saved._id) : null,
-      notificationAvailable: Boolean(checkoutWhatsAppConfig()),
+      whatsappUrl: checkoutWhatsAppUrl(saved),
     });
   } catch (error) {
     if (error instanceof OrderError)

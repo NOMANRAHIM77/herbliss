@@ -131,12 +131,6 @@ function notify(id: string) {
   return notifyOrder(request, { params: Promise.resolve({ id }) });
 }
 
-function enableWhatsApp() {
-  state.env.WHATSAPP_PHONE_NUMBER_ID = "12345";
-  state.env.WHATSAPP_ACCESS_TOKEN = "mock-whatsapp-token";
-  state.env.CHECKOUT_WHATSAPP_TEST_NUMBER = "923000000001";
-}
-
 describe("WhatsApp checkout", () => {
   beforeEach(() => {
     state.records.clear();
@@ -151,72 +145,69 @@ describe("WhatsApp checkout", () => {
     vi.unstubAllGlobals();
   });
 
-  it("saves a COD order once without returning an editable WhatsApp draft", async () => {
+  it("saves a COD order once and builds a WhatsApp draft without Meta credentials", async () => {
+    const send = vi.fn();
+    vi.stubGlobal("fetch", send);
     const first = await submit("cod");
     expect(first.status).toBe(200);
     const result: CheckoutResult = await first.json();
-    const second = await submit("cod");
-    await expect(second.json()).resolves.toEqual(result);
+    await expect((await submit("cod")).json()).resolves.toEqual(result);
     expect(state.records.size).toBe(1);
     expect(result.receiptPath).toBeNull();
-    expect(result).not.toHaveProperty("whatsappUrl");
-    expect(result.notificationAvailable).toBe(false);
-    expect((await notify(result.id)).status).toBe(503);
-    expect(state.records.get(result.id)?.total).toBe(234000);
+    expect(new URL(result.whatsappUrl).hostname).toBe("wa.me");
+    const text = new URL(result.whatsappUrl).searchParams.get("text")!;
+    for (const detail of [
+      result.reference,
+      "Cash on delivery",
+      "Oil & Shampoo Duo × 1",
+      "Subtotal: Rs. 2,340",
+      "Delivery: Free",
+      "Total: Rs. 2,340",
+      "Sample Customer",
+      "03001234567",
+      "sample@example.test",
+      "Sample street 5, test neighborhood, Karachi, Pakistan",
+    ]) {
+      expect(text).toContain(detail);
+    }
+    expect(state.records.get(result.id)?.status).toBe("awaiting-confirmation");
+    expect(state.records.get(result.id)?.whatsappNotification).toBeUndefined();
+    expect(send).not.toHaveBeenCalled();
   });
 
   it.each([
     ["development", "923000000001"],
     ["production", site.contact.whatsapp],
-  ])("sends only the saved COD details in %s", async (mode, number) => {
-    enableWhatsApp();
-    vi.stubEnv("NODE_ENV", mode);
-    const send = vi.fn(async (_url: string, _request: RequestInit) =>
-      Response.json({ messages: [{ id: "wamid.test" }] }),
-    );
-    vi.stubGlobal("fetch", send);
-    const result: CheckoutResult = await (await submit("cod")).json();
-    state.customer.mockResolvedValueOnce({ email: "other@example.test" });
-    expect((await notify(result.id)).status).toBe(404);
-    expect(send).not.toHaveBeenCalled();
-    const request = new Request(
-      origin + "/api/orders/" + result.id + "/notify",
-      {
-        method: "POST",
-        headers: { Origin: origin, "Content-Type": "application/json" },
-        body: JSON.stringify({ to: "923000000099", total: "Rs. 1" }),
-      },
-    );
-    expect(
-      (
-        await notifyOrder(request, {
-          params: Promise.resolve({ id: result.id }),
-        })
-      ).status,
-    ).toBe(200);
-    expect((await notify(result.id)).status).toBe(200);
-    expect(send).toHaveBeenCalledTimes(1);
-    const [url, init] = send.mock.calls[0];
-    expect(url).toBe("https://graph.facebook.com/v27.0/12345/messages");
-    const message = JSON.parse(String(init.body));
-    expect(message.to).toBe(number);
-    expect(message.template.name).toBe("herbliss_order_cod");
-    expect(
-      message.template.components[0].parameters.map(
-        ({ text }: { text: string }) => text,
-      ),
-    ).toEqual([
-      result.reference,
-      expect.stringContaining("Oil & Shampoo Duo × 1 (Rs. 2,000)"),
-      "Rs. 2,340",
-      "Free",
-      "Rs. 2,340",
-      "Sample Customer",
-      "03001234567",
-      "sample@example.test",
-      "Sample street 5, test neighborhood, Karachi, Pakistan",
-    ]);
-  });
+  ])(
+    "uses the configured recipient and saved amounts in %s",
+    async (mode, number) => {
+      state.env.CHECKOUT_WHATSAPP_TEST_NUMBER = "923000000001";
+      vi.stubEnv("NODE_ENV", mode);
+      const result: CheckoutResult = await (await submit("cod")).json();
+      expect(new URL(result.whatsappUrl).pathname).toBe("/" + number);
+      state.customer.mockResolvedValueOnce({ email: "other@example.test" });
+      expect((await notify(result.id)).status).toBe(404);
+      state.customer.mockResolvedValueOnce(null);
+      expect((await notify(result.id)).status).toBe(401);
+      const request = new Request(
+        origin + "/api/orders/" + result.id + "/notify",
+        {
+          method: "POST",
+          headers: { Origin: origin, "Content-Type": "application/json" },
+          body: JSON.stringify({ to: "923000000099", total: "Rs. 1" }),
+        },
+      );
+      const response = await notifyOrder(request, {
+        params: Promise.resolve({ id: result.id }),
+      });
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({
+        whatsappUrl: result.whatsappUrl,
+      });
+      expect((await notify(result.id)).status).toBe(200);
+      expect(state.records.get(result.id)?.total).toBe(234000);
+    },
+  );
 
   it("rejects unauthorized, changed-total, and invalid screenshot submissions", async () => {
     state.customer.mockResolvedValueOnce(null);
@@ -257,44 +248,26 @@ describe("WhatsApp checkout", () => {
     expect((await downloadReceipt(download, { params })).status).toBe(404);
   });
 
-  it("attaches the stored Easypaisa screenshot directly from localhost", async () => {
-    enableWhatsApp();
-    state.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
-    const send = vi.fn(async (url: string, _request: RequestInit) =>
-      Response.json(
-        url.endsWith("/media")
-          ? { id: "receipt-media-id" }
-          : { messages: [{ id: "wamid.test" }] },
-      ),
-    );
+  it("includes an accessible signed Easypaisa screenshot link and keeps payment pending", async () => {
+    const send = vi.fn();
     vi.stubGlobal("fetch", send);
     const response = await submit(
       "easypaisa-manual",
       new File([screenshot], "paid.png", { type: "image/png" }),
     );
     const result: CheckoutResult = await response.json();
-    expect((await notify(result.id)).status).toBe(200);
-    expect(send).toHaveBeenCalledTimes(2);
-    const form = send.mock.calls[0][1].body as FormData;
-    expect(form.get("type")).toBe("image/png");
-    expect(Buffer.from(await (form.get("file") as File).arrayBuffer())).toEqual(
-      screenshot,
+    const text = new URL(result.whatsappUrl).searchParams.get("text")!;
+    expect(text).toContain("Manual Easypaisa transfer — pending verification");
+    const url = new URL(result.receiptPath!, state.env.NEXT_PUBLIC_APP_URL);
+    expect(text).toContain(url.href);
+    const receipt = await downloadReceipt(new Request(url), {
+      params: Promise.resolve({ id: result.id }),
+    });
+    expect(receipt.status).toBe(200);
+    expect(Buffer.from(await receipt.arrayBuffer())).toEqual(screenshot);
+    expect(state.records.get(result.id)?.status).toBe(
+      "awaiting-payment-review",
     );
-    const message = JSON.parse(String(send.mock.calls[1][1].body));
-    expect(message.template.name).toBe("herbliss_order_easypaisa");
-    expect(message.template.components[0].parameters).toEqual([
-      { type: "image", image: { id: "receipt-media-id" } },
-    ]);
-  });
-
-  it("does not resend after an ambiguous send failure", async () => {
-    enableWhatsApp();
-    const send = vi.fn().mockRejectedValue(new Error("Connection interrupted"));
-    vi.stubGlobal("fetch", send);
-    const result: CheckoutResult = await (await submit("cod")).json();
-    expect((await notify(result.id)).status).toBe(503);
-    const retry = await notify(result.id);
-    expect(await retry.json()).toMatchObject({ retryable: false });
-    expect(send).toHaveBeenCalledTimes(1);
+    expect(send).not.toHaveBeenCalled();
   });
 });

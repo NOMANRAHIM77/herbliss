@@ -46,7 +46,7 @@ Signup sends an email verification code when SMTP is configured and `ENABLE_EMAI
 
 The original JazzCash/Easypaisa merchant variables remain blank in `.env.example` for future integrations. They are inactive: the owner's updated scope is **COD plus manually verified Easypaisa wallet transfer**. A wallet number alone cannot provide automatic gateway verification. See [the updated scope](docs/DECISIONS.md).
 
-Checkout saves requests in the MongoDB `checkout_orders` collection. The **Send order to Herbliss** button sends the saved order from the server using the WhatsApp Cloud API. Manual Easypaisa requests stay pending payment review, and the server attaches the screenshot to the notification. See [WhatsApp checkout setup](docs/WHATSAPP_CHECKOUT.md).
+Checkout saves requests in the MongoDB `checkout_orders` collection. The **Send order to Herbliss** button opens WhatsApp with the saved order details for the customer to send. No Meta API is required. Manual Easypaisa requests stay pending payment review, and the message includes a protected screenshot link. See [WhatsApp checkout setup](docs/WHATSAPP_CHECKOUT.md).
 
 ## Confirmed store rules
 

@@ -49,9 +49,6 @@ export function CheckoutForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState<CheckoutResult | null>(null);
-  const [notification, setNotification] = useState<
-    "ready" | "accepted" | "unavailable"
-  >("ready");
   const lastRequest = useRef<{ signature: string; id: string } | null>(null);
   const easypaisa = site.payments.easypaisa;
 
@@ -68,17 +65,14 @@ export function CheckoutForm({
           role="status"
           className="text-muted-foreground mt-3 text-sm leading-6"
         >
-          {notification === "accepted"
-            ? "Your order was submitted to WhatsApp for Herbliss. Please wait for the store to confirm it."
-            : !saved.notificationAvailable
-              ? "Automatic WhatsApp notifications are unavailable. Contact Herbliss with your order reference."
-              : notification === "ready" &&
-                "Send your saved order directly to Herbliss."}
+          Open WhatsApp and tap Send to share your order with Herbliss. Your
+          order is saved and awaiting confirmation from the store.
         </p>
         {saved.receiptPath && (
           <p className="text-muted-foreground mt-2 text-sm leading-6">
-            Your payment is pending review. Your screenshot is saved with your
-            order.
+            Your payment is pending review. The message includes a link to your
+            saved screenshot, valid for 7 days. You can also download it below
+            and attach it in WhatsApp.
           </p>
         )}
         {error && (
@@ -87,51 +81,16 @@ export function CheckoutForm({
           </p>
         )}
         <div className="mt-5 flex flex-wrap gap-3">
-          {saved.notificationAvailable && notification === "ready" && (
-            <Button
-              type="button"
-              className={actionClass}
-              disabled={busy}
-              onClick={async () => {
-                setError("");
-                setBusy(true);
-                try {
-                  const response = await fetch(
-                    `/api/orders/${saved.id}/notify`,
-                    { method: "POST" },
-                  );
-                  const result: {
-                    accepted?: true;
-                    error?: string;
-                    retryable?: boolean;
-                  } = await response.json();
-                  if (response.ok && result.accepted) {
-                    setNotification("accepted");
-                  } else {
-                    if (result.retryable === false)
-                      setNotification("unavailable");
-                    setError(
-                      result.error ??
-                        "Your order is saved. Check the notification again.",
-                    );
-                  }
-                } catch {
-                  setError(
-                    "Your order is saved. Check the notification again.",
-                  );
-                } finally {
-                  setBusy(false);
-                }
-              }}
+          <Button asChild className={actionClass}>
+            <a
+              href={saved.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <WhatsAppIcon size={20} />
-              {busy
-                ? "Sending order…"
-                : error
-                  ? "Check WhatsApp notification"
-                  : "Send order to Herbliss"}
-            </Button>
-          )}
+              Send order to Herbliss
+            </a>
+          </Button>
           {saved.receiptPath && (
             <Button
               asChild
