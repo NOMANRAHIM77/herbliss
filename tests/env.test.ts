@@ -5,6 +5,7 @@ import {
   formatEnvError,
   parseEnv,
   parseStorefrontEnv,
+  parseSmtpEnv,
 } from "../lib/env-schema";
 
 const core = {
@@ -171,6 +172,45 @@ describe("environment configuration", () => {
     });
     expect(env.SMTP_PORT).toBe(587);
     expect(env.ENABLE_EMAIL).toBe(true);
+  });
+
+  it("allows Render to use the relay without SMTP credentials", () => {
+    const relay = {
+      ...core,
+      ENABLE_EMAIL: "true",
+      EMAIL_DELIVERY: "relay",
+      EMAIL_RELAY_SECRET:
+        "test-relay-secret-with-at-least-thirty-two-characters",
+      NEXT_PUBLIC_APP_URL: "https://shop.example.test",
+    };
+    expect(parseEnv(relay).SMTP_PASS).toBeUndefined();
+    expect(() => parseEnv({ ...relay, EMAIL_RELAY_SECRET: "" })).toThrow(
+      /EMAIL_RELAY_SECRET/,
+    );
+    expect(() => parseEnv({ ...relay, EMAIL_RELAY_SECRET: "short" })).toThrow(
+      /EMAIL_RELAY_SECRET/,
+    );
+    for (const url of [
+      "http://shop.example.test",
+      "https://shop.example.test/path",
+    ]) {
+      expect(() => parseEnv({ ...relay, NEXT_PUBLIC_APP_URL: url })).toThrow(
+        /HTTPS origin/,
+      );
+    }
+  });
+
+  it("parses SMTP settings on Vercel without database or JWT credentials", () => {
+    const smtp = {
+      SMTP_HOST: "smtp.gmail.com",
+      SMTP_PORT: "465",
+      SMTP_USER: "sender@example.test",
+      SMTP_PASS: "test-password",
+      EMAIL_FROM: "sender@example.test",
+      STORE_CONTACT_EMAIL: "sender@example.test",
+    };
+    expect(parseSmtpEnv(smtp).SMTP_PORT).toBe(465);
+    expect(() => parseSmtpEnv({ ...smtp, SMTP_PASS: "" })).toThrow(/SMTP_PASS/);
   });
 
   it.each(["0", "65536", "587.5", "not-a-port"])(

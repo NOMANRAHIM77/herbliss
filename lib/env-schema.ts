@@ -34,20 +34,37 @@ const booleanFlag = z
   .default("false")
   .transform((value) => value === "true");
 
+const serverOrigin = httpUrl
+  .refine((value) => {
+    const url = URL.parse(value);
+    return (
+      url !== null &&
+      url.href === url.origin + "/" &&
+      (url.protocol === "https:" ||
+        ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
+    );
+  }, "must be an HTTPS origin without a path (HTTP is allowed on loopback)")
+  .transform((value) => new URL(value).origin);
+
+const smtpFields = {
+  SMTP_HOST: optionalText,
+  SMTP_PORT: z
+    .string()
+    .regex(/^\d+$/, "must be an integer between 1 and 65535")
+    .transform(Number)
+    .pipe(z.number().int().min(1).max(65535))
+    .optional(),
+  SMTP_USER: optionalText,
+  SMTP_PASS: optionalText,
+  EMAIL_FROM: optionalEmail,
+  STORE_CONTACT_EMAIL: optionalEmail,
+};
+const smtpEnvSchema = z.strictObject(smtpFields).required();
+export type SmtpEnv = z.infer<typeof smtpEnvSchema>;
+
 const storefrontEnvSchema = z.strictObject({
   NEXT_PUBLIC_APP_URL: httpUrl,
-  BACKEND_URL: httpUrl
-    .refine((value) => {
-      const url = URL.parse(value);
-      return (
-        url !== null &&
-        url.href === url.origin + "/" &&
-        (url.protocol === "https:" ||
-          ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
-      );
-    }, "must be an HTTPS origin without a path (HTTP is allowed on loopback)")
-    .transform((value) => new URL(value).origin)
-    .optional(),
+  BACKEND_URL: serverOrigin.optional(),
   IMAGE_PROVIDER: z
     .enum(["cloudinary", "imagekit"], {
       error: "must be cloudinary or imagekit",
@@ -78,17 +95,11 @@ const baseEnvSchema = storefrontEnvSchema.extend({
   IMAGEKIT_PRIVATE_KEY: optionalText,
 
   ENABLE_EMAIL: booleanFlag,
-  SMTP_HOST: optionalText,
-  SMTP_PORT: z
-    .string()
-    .regex(/^\d+$/, "must be an integer between 1 and 65535")
-    .transform(Number)
-    .pipe(z.number().int().min(1).max(65535))
+  EMAIL_DELIVERY: z.enum(["smtp", "relay"]).default("smtp"),
+  EMAIL_RELAY_SECRET: requiredText
+    .min(32, "must contain at least 32 characters")
     .optional(),
-  SMTP_USER: optionalText,
-  SMTP_PASS: optionalText,
-  EMAIL_FROM: optionalEmail,
-  STORE_CONTACT_EMAIL: optionalEmail,
+  ...smtpFields,
   CHECKOUT_WHATSAPP_TEST_NUMBER: z
     .string()
     .regex(
@@ -148,6 +159,21 @@ const envSchema = baseEnvSchema.superRefine((env, context) => {
   }
 
   if (env.ENABLE_EMAIL) {
+    if (env.EMAIL_DELIVERY === "relay") {
+      requireKeys(
+        ["EMAIL_RELAY_SECRET"],
+        "is required when email relay is enabled",
+      );
+      if (!serverOrigin.safeParse(env.NEXT_PUBLIC_APP_URL).success) {
+        context.addIssue({
+          code: "custom",
+          path: ["NEXT_PUBLIC_APP_URL"],
+          message:
+            "must be an HTTPS origin for the email relay (HTTP is allowed on loopback)",
+        });
+      }
+      return;
+    }
     requireKeys(
       [
         "SMTP_HOST",
@@ -237,6 +263,13 @@ export function parseStorefrontEnv(source: Readonly<Record<string, unknown>>) {
 
 export function parseEnv(source: Readonly<Record<string, unknown>>): Env {
   return parseSettings(envSchema, source);
+}
+
+/** The Vercel email function needs SMTP settings, without database credentials. */
+export function parseSmtpEnv(
+  source: Readonly<Record<string, unknown>>,
+): SmtpEnv {
+  return parseSettings(smtpEnvSchema, source);
 }
 
 /** Safe to print: contains variable names and validation rules, never their values. */

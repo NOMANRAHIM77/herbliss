@@ -23,7 +23,7 @@ Core required environment variables: `NEXT_PUBLIC_APP_URL`, `MONGODB_URI`, and a
 
 ## Deploy
 
-Host the Next.js storefront on Vercel and its API on Render. For dashboard settings, environment variables and launch checks, see [Deployment](docs/DEPLOYMENT.md).
+Host the Next.js storefront on Vercel and its API on Render Free. Gmail verification emails are sent by a protected Vercel function, called from Render over HTTPS. For dashboard settings, environment variables and launch checks, see [Deployment](docs/DEPLOYMENT.md).
 
 ## Project layout
 

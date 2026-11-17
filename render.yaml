@@ -2,7 +2,7 @@ services:
   - type: web
     name: herbliss-api
     runtime: node
-    plan: starter
+    plan: free
     branch: main
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start -- --hostname 0.0.0.0
@@ -15,4 +15,8 @@ services:
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
+        generateValue: true
+      - key: EMAIL_DELIVERY
+        value: relay
+      - key: EMAIL_RELAY_SECRET
         generateValue: true

@@ -2,6 +2,12 @@
 
 Signup uses SMTP to send a one-time verification code to the email address entered on the form. The message appears from **The Herbliss** at your configured sender address. Keep `ENABLE_EMAIL=false` until your SMTP credentials are ready.
 
+## Render Free with Gmail and no domain
+
+Render Free blocks Gmail's SMTP ports. The application supports `EMAIL_DELIVERY=relay` on Render: Render creates the code and calls the Vercel storefront over HTTPS using a shared `EMAIL_RELAY_SECRET`. Vercel sends the email through Gmail. Add the SMTP settings to **Vercel**, and use the same relay secret on both hosts. Follow the exact environment-variable tables and deployment order in [Deployment](DEPLOYMENT.md). [Render Free limits](https://render.com/docs/free) · [Vercel SMTP support](https://vercel.com/kb/guide/serverless-functions-and-smtp)
+
+Keep `EMAIL_DELIVERY=smtp` (or leave it blank) for local development. The local `smtp:check` command tests a direct connection only; it does not test the deployed relay.
+
 ## Option 1: Gmail for development
 
 Gmail is a convenient way to test email during development. Nodemailer recommends a dedicated email provider for production because Gmail may block automated sign-ins and has sending limits. [Nodemailer Gmail guide](https://nodemailer.com/guides/using-gmail)
