@@ -1,86 +1,49 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { ArrowDown, ArrowRight, MessageCircle, Truck } from "lucide-react";
-import { BrandMark } from "@/components/brand-mark";
-import { SocialIcons } from "@/components/social-icons";
+import Link from "next/link";
+import { connection } from "next/server";
+import { Suspense } from "react";
+import { productDetails } from "@/content/product-details";
+import { ArrowDown, ArrowRight, Truck } from "lucide-react";
+import { BundleBadges } from "@/components/bundle-badges";
+import { CareSection } from "@/components/care-section";
+import { IngredientSection } from "@/components/ingredient-section";
+import { IngredientLibrary } from "@/components/ingredient-library";
+import { VideoGallery } from "@/components/video-gallery";
+import { FaqSection } from "@/components/faq-section";
+import { StoreImage } from "@/components/store-image";
+
 import { Button } from "@/components/ui/button";
 import { products } from "@/content/products";
 import { homeContent as copy, site } from "@/content/site";
+import { videoContent } from "@/content/videos";
 import { formatPrice } from "@/lib/utils";
-import collectionImage from "@/public/images/collection-landscape.png";
-import oilImage from "@/public/images/hair-oil.jpg";
-import shampooImage from "@/public/images/shampoo.jpg";
-import lotionImage from "@/public/images/lotion.jpg";
-import duoImage from "@/public/images/duo.jpg";
+import { listVideos } from "@/lib/videos";
 
 export const metadata: Metadata = {
   title: { absolute: site.name },
   alternates: { canonical: "/" },
 };
-const productImages = {
-  "/images/hair-oil.jpg": oilImage,
-  "/images/shampoo.jpg": shampooImage,
-  "/images/lotion.jpg": lotionImage,
-  "/images/duo.jpg": duoImage,
-};
+async function HomeVideos() {
+  await connection();
+  const videos = await listVideos().catch(() => null);
+  return <VideoGallery initialVideos={videos} />;
+}
 
 export default function HomePage() {
   return (
     <div id="home">
-      <div className="bg-primary">
-        <div className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 text-xs font-medium sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2 lg:col-start-2 lg:justify-center lg:gap-x-8">
-            <span>{copy.announcement}</span>
-            <span className="hidden sm:inline" aria-hidden="true">
-              /
-            </span>
-            <span className="hidden sm:inline">{copy.announcementOffer}</span>
-          </div>
-          <div className="justify-self-end">
-            <SocialIcons />
-          </div>
-        </div>
-      </div>
-      <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-5 sm:px-8 lg:py-7">
-        <a href="#home" className="inline-flex min-h-11 items-center">
-          <BrandMark />
-        </a>
-        <nav
-          aria-label="Main navigation"
-          className="hidden items-center gap-8 text-sm lg:flex"
-        >
-          {site.navigation.map((item) => (
-            <a
-              className="hover:text-brand-deep flex min-h-11 items-center transition-colors"
-              key={item.href}
-              href={item.href}
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        <a
-          href={`https://wa.me/${site.contact.whatsapp}`}
-          aria-label={copy.whatsappLabel}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="border-border hover:bg-accent flex size-11 shrink-0 items-center justify-center rounded-full border"
-        >
-          <MessageCircle size={20} />
-        </a>
-      </header>
-
       <main id="main">
         <section className="w-full pb-14 lg:pb-20" aria-labelledby="hero-title">
           <h1 id="hero-title" className="sr-only">
             {copy.title}
           </h1>
-          <Image
-            src={collectionImage}
+          <StoreImage
+            src="/images/collection-landscape.png"
             alt={copy.imageAlt}
+            width={2048}
+            height={768}
             className="block h-auto w-full"
             sizes="100vw"
-            placeholder="blur"
             preload
           />
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 pt-5 sm:px-8">
@@ -130,38 +93,48 @@ export default function HomePage() {
               aria-hidden="true"
             />
           </div>
-          <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-12">
             {products.map((product) => (
-              <article key={product.slug} id={product.category}>
-                <div className="bg-muted relative overflow-hidden rounded-2xl">
-                  <Image
-                    src={
-                      productImages[product.image as keyof typeof productImages]
-                    }
-                    alt={product.name}
-                    className="h-auto w-full"
-                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
-                    placeholder="blur"
-                  />
-                  {product.shippingIncluded && (
-                    <span className="bg-primary absolute top-3 left-3 rounded-full px-3 py-1.5 text-xs font-semibold">
-                      {copy.bundleBadge}
-                    </span>
-                  )}
+              <article
+                key={product.slug}
+                id={product.category}
+                className="mx-auto flex h-full w-full max-w-72 flex-col"
+              >
+                <div className="mb-2 flex h-16 items-end justify-end">
+                  <BundleBadges product={product} />
                 </div>
-                <div className="pt-4">
-                  <p className="text-muted-foreground mb-1.5 text-xs">
-                    {product.size}
-                  </p>
-                  <h3 className="text-base leading-6 font-semibold tracking-tight">
-                    {product.name}
+                <Link
+                  href={"/products/" + product.slug}
+                  className="group relative block aspect-[3/4] shrink-0 overflow-hidden rounded-2xl"
+                >
+                  <StoreImage
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025] motion-reduce:transform-none"
+                    sizes="(max-width: 1023px) 288px, 241px"
+                  />
+                </Link>
+                <div className="flex flex-1 flex-col pt-4">
+                  <h3 className="min-h-12 text-sm leading-6 font-semibold tracking-tight">
+                    <Link
+                      href={"/products/" + product.slug}
+                      className="hover:text-brand-deep"
+                    >
+                      {product.name}
+                    </Link>
                   </h3>
                   <p className="mt-2 text-base font-medium">
                     {formatPrice(product.pricePaisa)}
                   </p>
-                  <p className="text-muted-foreground mt-3 text-sm leading-6">
-                    {product.description}
-                  </p>
+                  <div className="mt-auto pt-4">
+                    <Button asChild className="w-full">
+                      <Link href={"/products/" + product.slug}>
+                        {productDetails.viewDetails}
+                        <ArrowRight aria-hidden="true" />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -170,38 +143,20 @@ export default function HomePage() {
             {copy.draftNote}
           </p>
         </section>
-      </main>
-
-      <footer className="border-border bg-secondary border-t">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-9 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <div>
-            <BrandMark />
-            <p className="text-muted-foreground mt-3 max-w-sm text-xs leading-6">
-              {copy.footerText}
+        <IngredientSection />
+        <Suspense
+          fallback={
+            <p role="status" className="text-muted-foreground mx-auto max-w-7xl px-5 py-8 text-sm sm:px-8">
+              {videoContent.loading}
             </p>
-          </div>
-          <a
-            className="text-brand-deep inline-flex min-h-11 items-center gap-2 text-sm"
-            href={`https://wa.me/${site.contact.whatsapp}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessageCircle size={18} />
-            {site.contact.whatsappDisplay}
-            <ArrowRight size={16} />
-          </a>
-        </div>
-      </footer>
-
-      <a
-        href={`https://wa.me/${site.contact.whatsapp}?text=${encodeURIComponent(copy.whatsappMessage)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={copy.whatsappLabel}
-        className="bg-brand-deep hover:bg-success fixed right-5 bottom-5 z-30 flex size-14 items-center justify-center rounded-full text-white shadow-lg transition-colors"
-      >
-        <MessageCircle className="size-7" aria-hidden="true" />
-      </a>
+          }
+        >
+          <HomeVideos />
+        </Suspense>
+        <IngredientLibrary />
+        <CareSection />
+        <FaqSection />
+      </main>
     </div>
   );
 }

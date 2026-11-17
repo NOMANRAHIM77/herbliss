@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: herbliss-api
+    runtime: node
+    plan: starter
+    branch: main
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start -- --hostname 0.0.0.0
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.x
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true

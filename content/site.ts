@@ -8,6 +8,7 @@ export const site = {
     country: "Pakistan",
     nationwide: true,
     feePaisa: 25000,
+    estimatedWorkingDays: 5,
     freeShippingThresholdPaisa: null,
     freeShippingWithBundle: true,
     bundleFreeShippingScope: "entire-order",
@@ -26,28 +27,58 @@ export const site = {
     email: null,
   },
   social: {
-    instagram: null,
-    facebook: null,
-    tiktok: null,
-    youtube: null,
-    snapchat: null,
+    instagram:
+      "https://www.instagram.com/husn_ezulf?utm_source=qr&vrfl=MXV4OHo3MXJ3aGVmZw%3D%3D",
   },
   navigation: [
     { label: "Home", href: "#home" },
-    { label: "Hair oil", href: "#hair-oil" },
-    { label: "Shampoo", href: "#shampoo" },
-    { label: "Body lotion", href: "#body-lotion" },
+    { label: "Hair oil", href: "/products/husn-e-zulf-herbal-hair-oil" },
+    { label: "Shampoo", href: "/products/husn-e-zulf-herbal-shampoo" },
+    { label: "Body lotion", href: "/products/husn-e-resham-moisturising-lotion" },
     { label: "The duo", href: "#bundles" },
+    { label: "FAQs", href: "#faq" },
+    { label: "Why choose us", href: "#why-choose-us" },
+    { label: "Ingredients", href: "#ingredient-library" },
   ],
 } as const;
 
 export const socialPlatforms = [
-  { id: "facebook", label: "Facebook" },
   { id: "instagram", label: "Instagram" },
-  { id: "youtube", label: "YouTube" },
-  { id: "tiktok", label: "TikTok" },
-  { id: "snapchat", label: "Snapchat" },
 ] as const;
+
+export const footerContent = {
+  tagline: "A little care. Every day.",
+  quickLinksTitle: "Quick links",
+  quickLinks: [
+    { label: "Home", href: "#home" },
+    { label: "Shop the collection", href: "#collection" },
+    { label: "Frequently asked questions", href: "#faq" },
+    { label: "Oil + shampoo duo", href: "#bundles" },
+    { label: "Contact us", href: "#contact" },
+  ],
+  careTitle: "Customer care",
+  carePending: [
+    "Track your order",
+    "Shipping policy",
+    "Return policy",
+    "Privacy policy",
+    "Terms of service",
+  ],
+  pendingLabel: "Coming soon",
+  contactTitle: "Contact us",
+  delivery: "Delivery across Pakistan",
+  deliveryDetails: "Rs. 250 · Free with the duo",
+  newsletterTitle: "Newsletter",
+  newsletterDescription:
+    "A little Herbliss in your inbox. Offers, care tips and new arrivals.",
+  newsletterPending: "Newsletter signup is coming soon.",
+  emailLabel: "Email address",
+  emailPlaceholder: "Enter your email",
+  subscribeLabel: "Subscribe",
+  rights: "All rights reserved.",
+  privacy: "Privacy",
+  terms: "Terms",
+};
 
 /** Phase 0 preview copy. The full storefront is built in subsequent phases. */
 export const homeContent = {
@@ -55,7 +86,7 @@ export const homeContent = {
   announcementOffer: "Free delivery with the oil + shampoo duo",
   socialLabel: "Social media",
   socialPending: "Link coming soon",
-  previewLabel: "Storefront preview · Online ordering is not open yet",
+  previewLabel: "Order with cash on delivery or manual Easypaisa and confirm on WhatsApp.",
   eyebrow: "Hair & skin care",
   title: "Complete hair\n& skin care.",
   description:

@@ -1,6 +1,6 @@
 import { site } from "@/content/site";
 
-export function BrandMark() {
+export function BrandMark({ inverse = false }: { inverse?: boolean }) {
   return (
     <span className="inline-flex items-center gap-3">
       <svg
@@ -9,7 +9,9 @@ export function BrandMark() {
         viewBox="0 0 48 48"
         fill="none"
         aria-hidden="true"
-        className="text-brand-deep shrink-0"
+        className={
+          inverse ? "text-primary shrink-0" : "text-brand-deep shrink-0"
+        }
       >
         <g transform={`rotate(${site.logoRotation} 24 24)`}>
           <path
@@ -18,7 +20,7 @@ export function BrandMark() {
           />
           <path
             d="M24 14V34M24 23L17 18M24 27L31 21"
-            stroke="white"
+            stroke={inverse ? "var(--foreground)" : "white"}
             strokeWidth="1.8"
             strokeLinecap="round"
           />

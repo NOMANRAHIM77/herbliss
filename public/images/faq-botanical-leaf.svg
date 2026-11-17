@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 720" fill="none">
+  <defs>
+    <linearGradient id="leaf" x1="132" y1="605" x2="463" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8aff8a" stop-opacity="0.2" />
+      <stop offset="0.55" stop-color="#b5e8a2" stop-opacity="0.75" />
+      <stop offset="1" stop-color="#e4f5c6" />
+    </linearGradient>
+    <linearGradient id="veins" x1="132" y1="605" x2="463" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8aff8a" stop-opacity="0.45" />
+      <stop offset="1" stop-color="#edf9d9" />
+    </linearGradient>
+  </defs>
+  <path d="M145 603C47 414 137 204 465 64C504 315 374 554 145 603Z" fill="url(#leaf)" stroke="#c8efb9" stroke-width="1.5" />
+  <path d="M145 603C236 476 330 293 465 64C504 315 374 554 145 603Z" fill="#b2e89e" fill-opacity="0.15" />
+  <g stroke="url(#veins)" stroke-linecap="round">
+    <path d="M96 684C184 553 308 328 465 64" stroke-width="3" />
+    <g stroke-width="1.5">
+      <path d="M177 555C139 506 122 460 119 410M177 555C240 549 290 529 330 498" />
+      <path d="M217 487C174 439 152 390 146 337M217 487C287 478 343 447 391 401" />
+      <path d="M258 415C216 371 195 322 192 269M258 415C322 399 377 365 419 319" />
+      <path d="M300 342C267 302 250 260 249 218M300 342C359 322 405 287 441 243" />
+      <path d="M340 273C317 241 303 205 304 175M340 273C389 252 427 218 454 181" />
+      <path d="M379 208C365 180 357 157 359 141M379 208C414 190 441 162 461 128" />
+      <path d="M417 145C410 128 407 114 408 109" />
+    </g>
+  </g>
+</svg>

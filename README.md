@@ -1,6 +1,6 @@
 # The Herbliss
 
-Mobile-first Next.js App Router project for a Pakistan hair and body-care store. **Current milestone: Phase 0 (foundation and a visual preview).** This is not a live shop: catalog database models, cart, authentication, checkout, payment handling and email sending are still to be implemented in the following phases.
+Mobile-first Next.js App Router project for a Pakistan hair and body-care store. The storefront supports customer accounts with email verification and checkout requests confirmed through WhatsApp.
 
 ## Run locally
 
@@ -21,6 +21,10 @@ Core required environment variables: `NEXT_PUBLIC_APP_URL`, `MONGODB_URI`, and a
 
 `npm run env:check` checks configuration without a database request. `npm run db:check` connects and pings Atlas, then disconnects; it does not create or change data. The server validates configuration at startup and caches its Mongoose connection across hot reloads and warm serverless requests. Database errors are sanitized rather than printing connection strings.
 
+## Deploy
+
+Host the Next.js storefront on Vercel and its API on Render. For dashboard settings, environment variables and launch checks, see [Deployment](docs/DEPLOYMENT.md).
+
 ## Project layout
 
 - `app/`: App Router, global theme, preview, loading, error and 404 pages.
@@ -31,16 +35,18 @@ Core required environment variables: `NEXT_PUBLIC_APP_URL`, `MONGODB_URI`, and a
 - `lib/env-schema.ts`, `lib/env.ts`: Zod validation and server-only access.
 - `lib/db.ts`: cached Node.js/Mongoose connection; no separate Express service.
 - `scripts/`: environment and read-only Atlas checks.
-- `tests/`: configuration tests; checkout/payment tests will accompany those features.
+- `tests/`: configuration, account verification and checkout tests.
 - `docs/`: SMTP instructions, content provenance, technical sources and implementation decisions.
 
 ## Services and configuration
 
 The selected image provider is **ImageKit**. While `ENABLE_IMAGE_UPLOADS=false`, supplied local images remain available and no upload is attempted. Set `IMAGE_PROVIDER=imagekit`, fill all three `IMAGEKIT_*` variables and set `ENABLE_IMAGE_UPLOADS=true` to require upload credentials. Cloudinary remains a supported configuration option; only the selected provider's keys are required. The upload adapter and idempotent seed script belong to Phase 2 and are not implemented yet.
 
-Email is disabled until SMTP is available. Follow [the SMTP setup guide](docs/SMTP_SETUP.md). `ENABLE_EMAIL=true` requires all SMTP/sender/contact variables; it does **not** send emails in Phase 0. The Nodemailer transport and account emails arrive in Phase 4. Do not enter a normal Gmail password as `SMTP_PASS`.
+Signup sends an email verification code when SMTP is configured and `ENABLE_EMAIL=true`. Follow [the SMTP setup guide](docs/SMTP_SETUP.md) to configure the sender and run `npm run smtp:check`. For Gmail, use a Google app password as `SMTP_PASS`.
 
 The original JazzCash/Easypaisa merchant variables remain blank in `.env.example` for future integrations. They are inactive: the owner's updated scope is **COD plus manually verified Easypaisa wallet transfer**. A wallet number alone cannot provide automatic gateway verification. See [the updated scope](docs/DECISIONS.md).
+
+Checkout saves requests in the MongoDB `checkout_orders` collection. The **Send order to Herbliss** button sends the saved order from the server using the WhatsApp Cloud API. Manual Easypaisa requests stay pending payment review, and the server attaches the screenshot to the notification. See [WhatsApp checkout setup](docs/WHATSAPP_CHECKOUT.md).
 
 ## Confirmed store rules
 
@@ -53,7 +59,7 @@ The original JazzCash/Easypaisa merchant variables remain blank in `.env.example
 
 Delivery is Rs. 250 across Pakistan. An order containing the duo has free delivery for the **whole order**, including extra products. There is no spend-based free-shipping threshold. The duo is not advertised as a product-price discount: the singles total Rs. 1,998.
 
-Money is represented as integer **paisa** (Rs. 1 = 100 paisa). Database-backed server calculations will be the authority once checkout exists. Bundle reservations must consume one oil and one shampoo atomically alongside other items in the order.
+Money is represented as integer **paisa** (Rs. 1 = 100 paisa). The checkout server calculates product prices and delivery from the catalog. The store confirms availability on WhatsApp.
 
 ## Validation
 
@@ -68,11 +74,9 @@ npm audit
 
 The foundation includes CSS theme tokens, Inter through `next/font`, accessible color pairs, 44px minimum interactive targets, reduced-motion styles and security headers. Public preview pages are marked `noindex` until the catalog and launch configuration are complete. The CSP currently permits inline Next.js scripts/styles; a nonce-based policy and full security review are launch-phase work.
 
-## Seeding and deployment roadmap
+## Seeding roadmap
 
 Phase 2 will add Mongoose models, ImageKit/Cloudinary upload adapters and `scripts/seed.ts`, with upsert-by-slug behavior. Re-running content seeding must not reset sold stock. The current product snapshot is deliberately not automatically written to Atlas.
-
-The intended production platform is Vercel (Node.js runtime) with MongoDB Atlas, or another Node-compatible host. Add secrets in hosting settings, configure the Atlas network access list for the deployment, set a real HTTPS `NEXT_PUBLIC_APP_URL`, and run the build checks. Mongoose uses MongoDB connections, so this project is not a static export or a Cloudflare Sites Worker deployment. Detailed deployment instructions and a production readiness check belong to Phase 8; do not launch this preview as an order-taking store.
 
 ## Manual acceptance checklist
 

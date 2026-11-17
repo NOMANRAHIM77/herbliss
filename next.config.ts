@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
-import { parseEnv } from "./lib/env-schema";
+import imagekitAssets from "./content/imagekit-assets.json";
+import { parseStorefrontEnv } from "./lib/env-schema";
 
-const env = parseEnv(process.env);
+const env = parseStorefrontEnv(process.env);
 const isProduction = process.env.NODE_ENV === "production";
 const imagekitEndpoint = env.IMAGEKIT_URL_ENDPOINT;
 const imagekitUrl = imagekitEndpoint ? new URL(imagekitEndpoint) : null;
@@ -21,8 +22,24 @@ const csp = [
 const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  allowedDevOrigins: ["127.0.0.1"],
+  async rewrites() {
+    return {
+      beforeFiles: env.BACKEND_URL
+        ? [
+            {
+              source: "/api/:path*",
+              destination: `${env.BACKEND_URL}/api/:path*`,
+            },
+          ]
+        : [],
+    };
+  },
   images: {
+    // Serve images directly during development to avoid on-demand resizing.
+    unoptimized: !isProduction,
     remotePatterns: [
+      ...Object.values(imagekitAssets).map((src) => new URL(src)),
       ...(imagekitUrl
         ? [
             {

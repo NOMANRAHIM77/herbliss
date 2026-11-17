@@ -4,6 +4,7 @@ import {
   EnvironmentValidationError,
   formatEnvError,
   parseEnv,
+  parseStorefrontEnv,
 } from "../lib/env-schema";
 
 const core = {
@@ -13,6 +14,29 @@ const core = {
 };
 
 describe("environment configuration", () => {
+  it("builds the Vercel storefront with only public settings and the Render origin", () => {
+    const storefront = {
+      VERCEL: "1",
+      NEXT_PUBLIC_APP_URL: "https://shop.example.test",
+      BACKEND_URL: "https://api.example.test/",
+    };
+    expect(parseStorefrontEnv(storefront).BACKEND_URL).toBe(
+      "https://api.example.test",
+    );
+    expect(() =>
+      parseStorefrontEnv({ ...storefront, BACKEND_URL: "" }),
+    ).toThrow(/BACKEND_URL/);
+    expect(() =>
+      parseStorefrontEnv({ ...storefront, BACKEND_URL: "not-a-url" }),
+    ).toThrow(EnvironmentValidationError);
+    expect(() =>
+      parseStorefrontEnv({
+        ...storefront,
+        BACKEND_URL: storefront.NEXT_PUBLIC_APP_URL,
+      }),
+    ).toThrow(/separate backend origin/);
+  });
+
   it("accepts core-only setup and defaults external services to disabled", () => {
     const env = parseEnv(core);
     expect(env.ENABLE_EMAIL).toBe(false);

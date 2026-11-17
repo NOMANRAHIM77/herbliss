@@ -34,8 +34,30 @@ const booleanFlag = z
   .default("false")
   .transform((value) => value === "true");
 
-const baseEnvSchema = z.strictObject({
+const storefrontEnvSchema = z.strictObject({
   NEXT_PUBLIC_APP_URL: httpUrl,
+  BACKEND_URL: httpUrl
+    .refine((value) => {
+      const url = URL.parse(value);
+      return (
+        url !== null &&
+        url.href === url.origin + "/" &&
+        (url.protocol === "https:" ||
+          ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
+      );
+    }, "must be an HTTPS origin without a path (HTTP is allowed on loopback)")
+    .transform((value) => new URL(value).origin)
+    .optional(),
+  IMAGE_PROVIDER: z
+    .enum(["cloudinary", "imagekit"], {
+      error: "must be cloudinary or imagekit",
+    })
+    .default("imagekit"),
+  CLOUDINARY_CLOUD_NAME: optionalText,
+  IMAGEKIT_URL_ENDPOINT: optionalHttpsUrl,
+});
+
+const baseEnvSchema = storefrontEnvSchema.extend({
   MONGODB_URI: requiredText.regex(
     /^mongodb(?:\+srv)?:\/\/(?:[^\s/?]+@)?[^\s/?@]+(?:[/?][^\s]*)?$/,
     "must be a MongoDB connection URI beginning with mongodb:// or mongodb+srv://",
@@ -49,18 +71,11 @@ const baseEnvSchema = z.strictObject({
     .min(32, "must contain at least 32 characters")
     .optional(),
 
-  IMAGE_PROVIDER: z
-    .enum(["cloudinary", "imagekit"], {
-      error: "must be cloudinary or imagekit",
-    })
-    .default("imagekit"),
   ENABLE_IMAGE_UPLOADS: booleanFlag,
-  CLOUDINARY_CLOUD_NAME: optionalText,
   CLOUDINARY_API_KEY: optionalText,
   CLOUDINARY_API_SECRET: optionalText,
   IMAGEKIT_PUBLIC_KEY: optionalText,
   IMAGEKIT_PRIVATE_KEY: optionalText,
-  IMAGEKIT_URL_ENDPOINT: optionalHttpsUrl,
 
   ENABLE_EMAIL: booleanFlag,
   SMTP_HOST: optionalText,
@@ -74,6 +89,19 @@ const baseEnvSchema = z.strictObject({
   SMTP_PASS: optionalText,
   EMAIL_FROM: optionalEmail,
   STORE_CONTACT_EMAIL: optionalEmail,
+  CHECKOUT_WHATSAPP_TEST_NUMBER: z
+    .string()
+    .regex(
+      /^923\d{9}$/,
+      "must be a Pakistani mobile number in international digits, starting with 923",
+    )
+    .optional(),
+  WHATSAPP_ACCESS_TOKEN: optionalText,
+  WHATSAPP_PHONE_NUMBER_ID: z.string().regex(/^\d+$/).optional(),
+  WHATSAPP_GRAPH_VERSION: z
+    .string()
+    .regex(/^v\d+\.\d+$/)
+    .default("v27.0"),
 
   // Reserved for a future merchant integration; manual wallet payments do not use these.
   JAZZCASH_ENV: z
@@ -92,10 +120,6 @@ const baseEnvSchema = z.strictObject({
   EASYPAISA_API_BASE_URL: optionalHttpsUrl,
   EASYPAISA_RETURN_URL: optionalHttpsUrl,
 });
-
-const envKeys = Object.keys(
-  baseEnvSchema.shape,
-) as (keyof typeof baseEnvSchema.shape)[];
 
 const envSchema = baseEnvSchema.superRefine((env, context) => {
   const requireKeys = (keys: (keyof typeof env)[], message: string) => {
@@ -155,9 +179,12 @@ export class EnvironmentValidationError extends Error {
 }
 
 /** Validate only application-owned keys, never the host's unrelated environment. */
-export function parseEnv(source: Readonly<Record<string, unknown>>): Env {
+function parseSettings<Shape extends z.ZodRawShape>(
+  schema: z.ZodObject<Shape>,
+  source: Readonly<Record<string, unknown>>,
+) {
   const selected = Object.fromEntries(
-    envKeys.map((key) => {
+    Object.keys(schema.shape).map((key) => {
       const value = source[key];
       return [
         key,
@@ -165,7 +192,7 @@ export function parseEnv(source: Readonly<Record<string, unknown>>): Env {
       ];
     }),
   );
-  const result = envSchema.safeParse(selected);
+  const result = schema.safeParse(selected);
 
   if (!result.success) {
     // Do not throw Zod's raw error: callers must never receive input values or causes.
@@ -183,6 +210,33 @@ export function parseEnv(source: Readonly<Record<string, unknown>>): Env {
   }
 
   return result.data;
+}
+
+export function parseStorefrontEnv(source: Readonly<Record<string, unknown>>) {
+  const env = parseSettings(storefrontEnvSchema, source);
+  if (source.VERCEL === "1" && !env.BACKEND_URL) {
+    throw new EnvironmentValidationError([
+      { key: "BACKEND_URL", message: "is required on Vercel" },
+    ]);
+  }
+  if (source.RENDER === "true" && env.BACKEND_URL) {
+    throw new EnvironmentValidationError([
+      { key: "BACKEND_URL", message: "must be blank on the Render backend" },
+    ]);
+  }
+  if (env.BACKEND_URL === new URL(env.NEXT_PUBLIC_APP_URL).origin) {
+    throw new EnvironmentValidationError([
+      {
+        key: "BACKEND_URL",
+        message: "must point to a separate backend origin",
+      },
+    ]);
+  }
+  return env;
+}
+
+export function parseEnv(source: Readonly<Record<string, unknown>>): Env {
+  return parseSettings(envSchema, source);
 }
 
 /** Safe to print: contains variable names and validation rules, never their values. */

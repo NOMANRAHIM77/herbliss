@@ -22,3 +22,43 @@
 - Refreshed the existing local preview and saved a screenshot in the ignored `artifacts/landscape-social-preview.jpg` file.
 
 Next: Phase 1 — complete shared responsive layout, mobile navigation, base components, motion helpers and skeletons. Full catalog/database seeding follows in Phase 2.
+
+## 2026-11-15 — Footer and WhatsApp refinement
+
+- Added a responsive five-column footer inspired by the supplied reference, using dark forest green, light-green headings, brand/social icons, navigation, customer care, contact details and a newsletter area.
+- Collection links and phone/WhatsApp contact work; policies, tracking and newsletter remain explicitly pending.
+- Replaced generic WhatsApp chat bubbles with the unmodified official logo. The floating widget uses the store's international number through WhatsApp's click-to-chat URL, allowing app handoff where supported.
+- Kept the existing full-width landscape hero and announcement social icons.
+
+## Navigation, accounts and cart
+
+- Added shared navigation with search, account and cart actions, including a live cart badge and mobile navigation links.
+- Product search covers names, categories, descriptions and ingredients, with matching and empty-result screens.
+- Added MongoDB-backed signup, login, protected profile details and logout. Passwords use salted scrypt; opaque sessions are hashed in MongoDB and stored in HTTP-only cookies. Auth requests enforce origin validation, input validation and persistent rate limits.
+- Added persistent guest cart, add-to-cart controls, quantity/removal controls and shared duo allocation limits. Totals follow the configured nationwide shipping and whole-order duo delivery offer.
+- Guests return to checkout after signup/login. Checkout currently reviews the cart; order submission and payment processing remain pending.
+- Per owner instruction, no build, lint, test or browser verification was run for these changes.
+
+## Owner-supplied video gallery
+
+- Imported all five supplied MP4 files into MongoDB GridFS, with ordered published gallery metadata.
+- Added public listing and byte-range streaming routes, plus extracted JPEG poster assets.
+- Added a responsive green-themed carousel below the collection with swipe/arrow navigation, muted initial playback, single-video playback and pause when offscreen or the tab is hidden.
+- No invented customer names, ratings or endorsements. ImageKit migration remains pending credentials.
+- No verification was run, as requested. Import completion is recorded from the upload operation itself.
+
+## Product details pages
+
+- Added View details links on homepage and search cards. Product artwork and names open the same dedicated product route.
+- Added a responsive two-column product view with large artwork, thumbnail gallery, supplied price/size, ingredient chips, ingredient/usage sections, shipping information and quantity selection.
+- Quantity add-to-cart updates are atomic: requests exceeding the shared oil/shampoo/duo allocation are rejected without partially adding items or reducing unrelated quantities.
+- Kept actual prices and supplied content; no review counts, ratings, discounts or product claims were copied from the reference.
+- No build, test or browser verification was run, per owner instruction.
+
+## Illustrated ingredient library
+
+- Added The ingredients behind your care after the video gallery, with 11 entries covering every supplied ingredient.
+- Created individual 1536 x 1024 ingredient illustrations with the built-in image tool and saved all assets in public/images/ingredients.
+- Added product filters, expand/collapse, full-size image dialogs and links to products containing each ingredient.
+- Wrote short cosmetic-role descriptions; labelled generated illustrations and the unspecified wax type. Prompts and references are in docs/INGREDIENT_LIBRARY.md.
+- No build, lint, tests or browser verification were run, as requested.

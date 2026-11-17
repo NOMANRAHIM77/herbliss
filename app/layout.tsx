@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { getEnv } from "@/lib/env";
+import { parseStorefrontEnv } from "@/lib/env-schema";
+import { hostedImageUrl } from "@/lib/store-images";
 import { homeContent, site } from "@/content/site";
+import { CartProvider } from "@/components/cart-provider";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { WhatsAppIcon, whatsappUrl } from "@/components/whatsapp-icon";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getEnv().NEXT_PUBLIC_APP_URL),
+  metadataBase: new URL(parseStorefrontEnv(process.env).NEXT_PUBLIC_APP_URL),
   title: { default: site.name, template: `%s | ${site.name}` },
   description: homeContent.description,
   // This is a development preview; indexable product pages arrive in Phase 2.
@@ -19,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: site.name,
     description: homeContent.description,
-    images: ["/images/collection.jpg"],
+    images: [hostedImageUrl("/images/collection.jpg")],
     locale: "en_PK",
     type: "website",
   },
@@ -37,7 +42,18 @@ export default function RootLayout({
         >
           {homeContent.skipLink}
         </a>
-        {children}
+        <CartProvider>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+          <a
+            href={whatsappUrl}
+            aria-label={homeContent.whatsappLabel}
+            className="fixed right-5 bottom-5 z-30 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white shadow-[0_4px_24px_#25d36655] transition-transform hover:scale-105"
+          >
+            <WhatsAppIcon size={40} />
+          </a>
+        </CartProvider>
       </body>
     </html>
   );
