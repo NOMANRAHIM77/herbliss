@@ -10,7 +10,6 @@ import {
   HandHeart,
   Package,
   CircleHelp,
-  Leaf,
   Sprout,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
@@ -24,7 +23,6 @@ const navIcons = [
   HandHeart,
   Package,
   CircleHelp,
-  Leaf,
   Sprout,
 ];
 
@@ -87,7 +85,7 @@ export function SiteHeader() {
           className={`${menuOpen ? "grid" : "hidden"} border-brand-deep/15 bg-secondary order-3 mt-3 w-full grid-cols-2 gap-1 rounded-2xl border p-2 text-sm xl:order-2 xl:mt-0 xl:flex xl:w-auto xl:items-center xl:rounded-none xl:border-0 xl:bg-transparent xl:p-0`}
         >
           {site.navigation.map((item, index) => {
-            const Icon = navIcons[index] ?? Leaf;
+            const Icon = navIcons[index] ?? Sprout;
             return (
               <Link
                 key={item.href}

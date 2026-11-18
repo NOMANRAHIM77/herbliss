@@ -1,4 +1,5 @@
 import { careSection as copy } from "@/content/care-section";
+import { CountUp } from "@/components/count-up";
 
 export function CareSection() {
   return (
@@ -21,7 +22,7 @@ export function CareSection() {
             />
             <dt className="sr-only">{highlight.label}</dt>
             <dd className="text-3xl font-medium tracking-[-0.05em] text-white sm:text-4xl xl:text-5xl">
-              {highlight.value}
+              <CountUp value={highlight.value} />
             </dd>
             <p aria-hidden="true" className="mt-3 text-sm font-medium">
               {highlight.label}

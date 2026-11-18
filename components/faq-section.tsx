@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowUpRight, Leaf, Plus, ShoppingCart } from "lucide-react";
+import { Leaf, Plus, ShoppingCart } from "lucide-react";
 import { faqContent as copy } from "@/content/faq";
 
 export function FaqSection() {
@@ -17,7 +16,10 @@ export function FaqSection() {
         <div className="absolute -top-36 -right-36 aspect-[7/9] w-[28rem] rotate-[155deg] bg-[url('/images/faq-botanical-leaf.svg')] bg-contain bg-no-repeat opacity-[0.12] sm:w-[34rem]" />
       </div>
       <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-        <h2 id="faq-title" className="sr-only">
+        <h2
+          id="faq-title"
+          className="mb-9 text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
           Frequently asked questions
         </h2>
         <div className="grid gap-8 md:grid-cols-2">
@@ -51,15 +53,6 @@ export function FaqSection() {
                         <p className="max-w-2xl text-sm leading-7 text-white/80">
                           {item.answer}
                         </p>
-                        {"link" in item && item.link && (
-                          <Link
-                            href={item.link.href}
-                            className="text-primary mt-3 inline-flex min-h-11 items-center gap-2 text-xs font-semibold underline-offset-4 hover:underline"
-                          >
-                            {item.link.label}
-                            <ArrowUpRight size={15} aria-hidden="true" />
-                          </Link>
-                        )}
                       </div>
                     </details>
                   ))}

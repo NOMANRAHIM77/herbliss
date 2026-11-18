@@ -34,10 +34,12 @@ export const site = {
     { label: "Home", href: "#home" },
     { label: "Hair oil", href: "/products/husn-e-zulf-herbal-hair-oil" },
     { label: "Shampoo", href: "/products/husn-e-zulf-herbal-shampoo" },
-    { label: "Body lotion", href: "/products/husn-e-resham-moisturising-lotion" },
-    { label: "The duo", href: "#bundles" },
+    {
+      label: "Body lotion",
+      href: "/products/husn-e-resham-moisturising-lotion",
+    },
+    { label: "The duo", href: "/products/husn-e-zulf-oil-shampoo-duo" },
     { label: "FAQs", href: "#faq" },
-    { label: "Why choose us", href: "#why-choose-us" },
     { label: "Ingredients", href: "#ingredient-library" },
   ],
 } as const;
@@ -86,7 +88,8 @@ export const homeContent = {
   announcementOffer: "Free delivery with the oil + shampoo duo",
   socialLabel: "Social media",
   socialPending: "Link coming soon",
-  previewLabel: "Order with cash on delivery or manual Easypaisa and confirm on WhatsApp.",
+  previewLabel:
+    "Order with cash on delivery or manual Easypaisa and confirm on WhatsApp.",
   eyebrow: "Hair & skin care",
   title: "Complete hair\n& skin care.",
   description:

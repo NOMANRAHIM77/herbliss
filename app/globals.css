@@ -115,7 +115,65 @@
   }
 }
 
+@keyframes whatsapp-nudge {
+  0%,
+  84%,
+  100% {
+    transform: rotate(0deg);
+  }
+  87%,
+  93% {
+    transform: rotate(-9deg);
+  }
+  90%,
+  96% {
+    transform: rotate(9deg);
+  }
+}
+
+.whatsapp-widget {
+  animation: whatsapp-nudge 4s ease-in-out infinite;
+}
+.whatsapp-widget:hover,
+.whatsapp-widget:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes leaf-sway {
+  0%,
+  100% {
+    transform: translateY(3px) rotate(-15deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(7deg);
+  }
+}
+@keyframes leaf-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes intro-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+.intro-leaf {
+  animation: leaf-sway 1.8s ease-in-out infinite;
+}
+.intro-orbit {
+  animation: leaf-orbit 3s linear infinite;
+}
+/* Never leave an overlay covering the store if hydration is delayed or unavailable. */
+.leaf-intro {
+  animation: intro-failsafe 0.3s ease 2.5s forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .leaf-intro {
+    display: none;
+  }
   html {
     scroll-behavior: auto;
   }

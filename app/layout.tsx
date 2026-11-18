@@ -6,6 +6,7 @@ import { homeContent, site } from "@/content/site";
 import { CartProvider } from "@/components/cart-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { LeafIntro } from "@/components/leaf-intro";
 import { WhatsAppIcon, whatsappUrl } from "@/components/whatsapp-icon";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en-PK" className={inter.variable}>
       <body>
+        <LeafIntro />
         <a
           href="#main"
           className="bg-primary fixed top-3 left-3 z-50 -translate-y-24 rounded-full px-5 py-3 font-semibold focus:translate-y-0"
@@ -49,7 +51,7 @@ export default function RootLayout({
           <a
             href={whatsappUrl}
             aria-label={homeContent.whatsappLabel}
-            className="fixed right-5 bottom-5 z-30 flex size-16 items-center justify-center rounded-full border border-white/20 bg-[#123c2a] shadow-[0_4px_24px_#123c2a55] transition-transform hover:scale-105"
+            className="whatsapp-widget border-primary/70 fixed right-5 bottom-5 z-30 flex size-16 items-center justify-center rounded-full border-2 bg-[#123c2a] shadow-[0_0_0_5px_#8aff8a20,0_6px_28px_#123c2a66] hover:brightness-110"
           >
             <WhatsAppIcon size={40} />
           </a>
