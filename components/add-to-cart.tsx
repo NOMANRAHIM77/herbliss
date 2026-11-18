@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart-provider";
 export function AddToCart({ id }: { id: string }) {
@@ -18,10 +18,13 @@ export function AddToCart({ id }: { id: string }) {
           )
         }
       >
-        <ShoppingBag />
+        <ShoppingCart />
         Add to cart
       </Button>
-      <p role="status" className="text-brand-deep mt-2 min-h-10 text-xs leading-5">
+      <p
+        role="status"
+        className="text-brand-deep mt-2 min-h-10 text-xs leading-5"
+      >
         {message}
       </p>
     </div>

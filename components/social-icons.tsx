@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { homeContent, site, socialPlatforms } from "@/content/site";
 
 export function SocialIcons({ inverse = false }: { inverse?: boolean }) {
@@ -20,30 +21,15 @@ export function SocialIcons({ inverse = false }: { inverse?: boolean }) {
           rel="noopener noreferrer"
           className="hover:bg-primary-hover hover:text-foreground focus-visible:bg-primary-hover focus-visible:text-foreground flex size-11 items-center justify-center rounded-lg transition-colors duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transition-none"
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            className="size-6"
+          <Image
+            src="/icons/instagram.webp"
+            width={28}
+            height={28}
+            alt=""
             aria-hidden="true"
-          >
-            <rect
-              x="4"
-              y="4"
-              width="16"
-              height="16"
-              rx="5"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <circle
-              cx="12"
-              cy="12"
-              r="3.6"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <circle cx="17.1" cy="6.9" r="1" fill="currentColor" />
-          </svg>
+            unoptimized
+            className="size-7"
+          />
         </a>
       ))}
     </div>

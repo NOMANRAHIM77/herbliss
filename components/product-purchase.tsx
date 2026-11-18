@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "@/components/cart-provider";
 import { Button } from "@/components/ui/button";
 import { products, type PreviewProduct } from "@/content/products";
@@ -97,7 +97,7 @@ export function ProductPurchase({ product }: { product: PreviewProduct }) {
           setMessage(success ? copy.added : copy.quantityChanged);
         }}
       >
-        <ShoppingBag />
+        <ShoppingCart />
         {copy.addToCart}
       </Button>
       {ready && available === 0 && (

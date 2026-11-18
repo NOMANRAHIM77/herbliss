@@ -49,7 +49,7 @@ export default function RootLayout({
           <a
             href={whatsappUrl}
             aria-label={homeContent.whatsappLabel}
-            className="fixed right-5 bottom-5 z-30 flex size-16 items-center justify-center rounded-full border border-black/10 bg-white shadow-[0_4px_24px_#25d36655] transition-transform hover:scale-105"
+            className="fixed right-5 bottom-5 z-30 flex size-16 items-center justify-center rounded-full border border-white/20 bg-[#123c2a] shadow-[0_4px_24px_#123c2a55] transition-transform hover:scale-105"
           >
             <WhatsAppIcon size={40} />
           </a>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import AutoScroll from "embla-carousel-auto-scroll";
-import { ArrowRight, ArrowUpRight, Leaf, X } from "lucide-react";
+import { ArrowRight, Leaf, X } from "lucide-react";
 import { StoreImage } from "@/components/store-image";
 import {
   Carousel,
@@ -142,7 +142,7 @@ export function IngredientLibrary() {
           aria-describedby="ingredient-motion-help"
           aria-live="off"
           tabIndex={0}
-          className="focus-visible:outline-brand-deep mt-7 w-full min-w-0 [--edge-fade:1.5rem] [mask-image:linear-gradient(to_right,transparent,#000_var(--edge-fade),#000_calc(100%_-_var(--edge-fade)),transparent)] focus-within:[mask-image:none] focus-visible:outline-2 focus-visible:outline-offset-4 sm:[--edge-fade:3rem] lg:[--edge-fade:4rem]"
+          className="focus-visible:outline-brand-deep mt-7 w-full min-w-0 [mask-image:linear-gradient(to_right,transparent,#000_var(--edge-fade),#000_calc(100%_-_var(--edge-fade)),transparent)] [--edge-fade:1.5rem] focus-within:[mask-image:none] focus-visible:outline-2 focus-visible:outline-offset-4 sm:[--edge-fade:3rem] lg:[--edge-fade:4rem]"
         >
           <CarouselContent className="touch-pan-y touch-pinch-zoom items-stretch">
             {ingredients.map((ingredient, index) => (
@@ -184,40 +184,12 @@ export function IngredientLibrary() {
                     <p className="text-muted-foreground mt-1.5 text-xs leading-5">
                       {ingredient.description}
                     </p>
-                    {ingredient.note && (
-                      <p className="text-muted-foreground mt-2 text-[11px] leading-5">
-                        {ingredient.note}
-                      </p>
-                    )}
-                    <div className="mt-auto pt-4">
-                      <p className="text-muted-foreground text-[10px] font-medium">
-                        {copy.foundIn}
-                      </p>
-                      <div className="flex flex-wrap gap-x-4">
-                        {ingredient.products.map((id) => (
-                          <Link
-                            key={id}
-                            href={ingredientProducts[id].href}
-                            draggable={false}
-                            className="text-brand-deep focus-visible:outline-brand-deep inline-flex min-h-11 items-center gap-1 text-xs font-semibold underline-offset-4 hover:underline"
-                          >
-                            {ingredientProducts[id].label}
-                            <ArrowUpRight size={14} aria-hidden="true" />
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 </article>
               </CarouselItem>
             ))}
           </CarouselContent>
         </Carousel>
-
-        <div className="border-brand-deep/10 text-muted-foreground mt-8 flex flex-col gap-2 border-t pt-5 text-[11px] leading-5">
-          <p>{copy.imageNote}</p>
-          <p>{copy.roleNote}</p>
-        </div>
       </div>
 
       <dialog

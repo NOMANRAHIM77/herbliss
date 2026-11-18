@@ -1,8 +1,20 @@
 import { site } from "@/content/site";
 
-export function BrandMark({ inverse = false }: { inverse?: boolean }) {
+export function BrandMark({
+  inverse = false,
+  compact = false,
+}: {
+  inverse?: boolean;
+  compact?: boolean;
+}) {
   return (
-    <span className="inline-flex items-center gap-3">
+    <span
+      className={
+        compact
+          ? "inline-flex items-center gap-1 sm:gap-3"
+          : "inline-flex items-center gap-3"
+      }
+    >
       <svg
         width="38"
         height="44"
@@ -10,7 +22,8 @@ export function BrandMark({ inverse = false }: { inverse?: boolean }) {
         fill="none"
         aria-hidden="true"
         className={
-          inverse ? "text-primary shrink-0" : "text-brand-deep shrink-0"
+          (inverse ? "text-primary shrink-0" : "text-brand-deep shrink-0") +
+          (compact ? " w-7 sm:w-[38px]" : "")
         }
       >
         <g transform={`rotate(${site.logoRotation} 24 24)`}>
@@ -32,7 +45,12 @@ export function BrandMark({ inverse = false }: { inverse?: boolean }) {
           />
         </g>
       </svg>
-      <span className="text-lg font-semibold tracking-[-0.06em] sm:text-xl">
+      <span
+        className={
+          (compact ? "text-sm" : "text-lg") +
+          " font-semibold tracking-[-0.06em] whitespace-nowrap sm:text-xl"
+        }
+      >
         {site.name}
       </span>
     </span>

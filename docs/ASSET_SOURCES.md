@@ -6,3 +6,7 @@
 - Direct asset: https://static.whatsapp.net/rsrc.php/y1/r/FJbTMJqMap7.svg
 - The header, footer and floating widget share this asset and the configured store number.
 - Chat links use the [official click-to-chat format](https://faq.whatsapp.com/5913398998672934): international digits without a plus sign and URL-encoded introductory text. The widget uses normal same-tab navigation so WhatsApp can hand off to its app when available; browser/device settings determine the handoff. Nothing sends a message automatically.
+
+## Instagram icon
+
+`public/icons/instagram.webp` is the unmodified 192×192 icon linked by the official Instagram homepage (`rel="icon"`). Retrieved 18 November 2026 from https://static.cdninstagram.com/rsrc.php/yr/r/rzWiSjZRxk5.webp and used for the store’s Instagram links.

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/cart-provider";
 import { cartTotals } from "@/lib/cart";
 import { cn, formatPrice } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function CartView({ customer }: { customer?: CheckoutCustomer }) {
   if (!lines.length)
     return (
       <div className="bg-secondary rounded-2xl border px-6 py-12 text-center">
-        <ShoppingBag size={40} className="text-brand-deep mx-auto mb-4" />
+        <ShoppingCart size={40} className="text-brand-deep mx-auto mb-4" />
         <h2 className="text-2xl font-semibold">Your cart is empty</h2>
         <p className="text-muted-foreground mt-3">
           Add your care essentials to get started.

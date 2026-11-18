@@ -11,18 +11,15 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { videoContent as copy, type StoreVideo } from "@/content/videos";
-import { site } from "@/content/site";
 
 const controlClass =
   "flex size-11 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-colors hover:bg-brand-deep focus-visible:outline-primary disabled:opacity-30";
 
 function VideoCard({
   video,
-  index,
   onPlay,
 }: {
   video: StoreVideo;
-  index: number;
   onPlay: (element: HTMLVideoElement) => void;
 }) {
   const player = useRef<HTMLVideoElement>(null);
@@ -78,7 +75,6 @@ function VideoCard({
           src={video.src}
           poster={video.poster}
           preload="none"
-          controls
           playsInline
           muted={muted}
           aria-label={video.title}
@@ -96,9 +92,6 @@ function VideoCard({
             setPlaying(false);
           }}
         />
-        <span className="text-foreground pointer-events-none absolute top-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold">
-          {String(index + 1).padStart(2, "0")}
-        </span>
         <div className="absolute top-3 right-3 flex gap-2">
           <button
             type="button"
@@ -151,19 +144,6 @@ function VideoCard({
             </button>
           </div>
         )}
-      </div>
-      <div className="flex items-center justify-between gap-3 px-4 py-4">
-        <div>
-          <p className="text-brand-deep text-[10px] font-semibold tracking-[0.16em] uppercase">
-            {site.name}
-          </p>
-          <h3 className="mt-1 text-sm font-medium">{video.title}</h3>
-        </div>
-        <Play
-          size={16}
-          className="text-brand-deep shrink-0"
-          aria-hidden="true"
-        />
       </div>
     </article>
   );
@@ -326,13 +306,8 @@ export function VideoGallery({
             }}
             className="flex snap-x snap-mandatory [scrollbar-width:thin] [scrollbar-color:var(--primary)_transparent] gap-5 overflow-x-auto overscroll-x-contain pb-4"
           >
-            {videos.map((video, index) => (
-              <VideoCard
-                key={video.id}
-                video={video}
-                index={index}
-                onPlay={playOnly}
-              />
+            {videos.map((video) => (
+              <VideoCard key={video.id} video={video} onPlay={playOnly} />
             ))}
           </div>
         )}

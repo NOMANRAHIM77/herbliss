@@ -3,13 +3,14 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { productDetails } from "@/content/product-details";
-import { ArrowDown, ArrowRight, Truck } from "lucide-react";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import { BundleBadges } from "@/components/bundle-badges";
 import { CareSection } from "@/components/care-section";
 import { IngredientSection } from "@/components/ingredient-section";
 import { IngredientLibrary } from "@/components/ingredient-library";
 import { VideoGallery } from "@/components/video-gallery";
 import { FaqSection } from "@/components/faq-section";
+import { ResponsiveHero } from "@/components/responsive-hero";
 import { StoreImage } from "@/components/store-image";
 
 import { Button } from "@/components/ui/button";
@@ -33,39 +34,14 @@ export default function HomePage() {
   return (
     <div id="home">
       <main id="main">
-        <section className="w-full pb-14 lg:pb-20" aria-labelledby="hero-title">
+        <section
+          className="w-full pb-8 sm:pb-14 lg:pb-20"
+          aria-labelledby="hero-title"
+        >
           <h1 id="hero-title" className="sr-only">
             {copy.title}
           </h1>
-          <StoreImage
-            src="/images/collection-landscape.png"
-            alt={copy.imageAlt}
-            width={2048}
-            height={768}
-            className="block h-auto w-full"
-            sizes="100vw"
-            preload
-          />
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 pt-5 sm:px-8">
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <a href="#collection">
-                  {copy.primaryAction}
-                  <ArrowRight />
-                </a>
-              </Button>
-              <Button asChild variant="outline">
-                <a href="#bundles">{copy.secondaryAction}</a>
-              </Button>
-            </div>
-            <p className="text-muted-foreground flex max-w-xs items-start gap-2.5 text-xs leading-5">
-              <Truck className="text-brand-deep mt-0.5 size-4 shrink-0" />
-              {copy.announcementOffer}
-            </p>
-          </div>
-          <p className="text-muted-foreground mt-4 px-5 text-center text-xs leading-5">
-            {copy.previewLabel}
-          </p>
+          <ResponsiveHero alt={copy.imageAlt} />
         </section>
 
         <section
@@ -93,14 +69,16 @@ export default function HomePage() {
               aria-hidden="true"
             />
           </div>
-          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-12">
-            {products.map((product) => (
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-12">
+            {products.map((product, index) => (
               <article
                 key={product.slug}
                 id={product.category}
-                className="mx-auto flex h-full w-full max-w-72 flex-col"
+                className="mx-auto flex h-full w-full max-w-72 min-w-0 flex-col"
               >
-                <div className="mb-2 flex h-16 items-end justify-end">
+                <div
+                  className={`${index < 2 ? "hidden lg:flex" : "flex"} mb-2 h-14 items-end justify-end sm:h-16`}
+                >
                   <BundleBadges product={product} />
                 </div>
                 <Link
@@ -112,11 +90,11 @@ export default function HomePage() {
                     alt={product.name}
                     fill
                     className="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025] motion-reduce:transform-none"
-                    sizes="(max-width: 1023px) 288px, 241px"
+                    sizes="(max-width: 639px) 45vw, (max-width: 1023px) 288px, 241px"
                   />
                 </Link>
-                <div className="flex flex-1 flex-col pt-4">
-                  <h3 className="min-h-12 text-sm leading-6 font-semibold tracking-tight">
+                <div className="flex flex-1 flex-col pt-3 sm:pt-4">
+                  <h3 className="min-h-[3.75rem] text-xs leading-5 font-semibold tracking-tight sm:min-h-12 sm:text-sm sm:leading-6">
                     <Link
                       href={"/products/" + product.slug}
                       className="hover:text-brand-deep"
@@ -124,11 +102,14 @@ export default function HomePage() {
                       {product.name}
                     </Link>
                   </h3>
-                  <p className="mt-2 text-base font-medium">
+                  <p className="mt-2 text-sm font-medium sm:text-base">
                     {formatPrice(product.pricePaisa)}
                   </p>
                   <div className="mt-auto pt-4">
-                    <Button asChild className="w-full">
+                    <Button
+                      asChild
+                      className="w-full gap-1 px-2 text-xs sm:gap-2 sm:px-6 sm:text-sm"
+                    >
                       <Link href={"/products/" + product.slug}>
                         {productDetails.viewDetails}
                         <ArrowRight aria-hidden="true" />
@@ -139,14 +120,14 @@ export default function HomePage() {
               </article>
             ))}
           </div>
-          <p className="text-muted-foreground mt-8 max-w-2xl text-xs leading-5">
-            {copy.draftNote}
-          </p>
         </section>
         <IngredientSection />
         <Suspense
           fallback={
-            <p role="status" className="text-muted-foreground mx-auto max-w-7xl px-5 py-8 text-sm sm:px-8">
+            <p
+              role="status"
+              className="text-muted-foreground mx-auto max-w-7xl px-5 py-8 text-sm sm:px-8"
+            >
               {videoContent.loading}
             </p>
           }
