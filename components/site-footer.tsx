@@ -9,7 +9,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-foreground text-secondary">
       <div className="mx-auto max-w-7xl px-5 pt-14 pb-24 sm:px-8 lg:pt-20 lg:pb-8">
-        <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] lg:gap-x-7">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr] lg:gap-x-7">
           <div>
             <Link
               href="/#home"
@@ -24,30 +24,13 @@ export function SiteFooter() {
             <p className="mt-4 max-w-xs text-sm leading-6 text-white/70">
               {homeContent.footerText}
             </p>
-            <div className="mt-4">
+            <div className="mt-6">
+              <h2 className="text-primary mb-2 text-sm font-semibold">
+                Connect on social media
+              </h2>
               <SocialIcons inverse />
             </div>
           </div>
-          <nav aria-labelledby="footer-links">
-            <h2
-              id="footer-links"
-              className="text-primary mb-4 text-sm font-semibold"
-            >
-              {copy.quickLinksTitle}
-            </h2>
-            <ul>
-              {copy.quickLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={"/" + link.href}
-                    className="hover:text-primary inline-flex min-h-11 items-center text-sm transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
           <div id="contact" className="scroll-mt-8">
             <h2 className="text-primary mb-4 text-sm font-semibold">
               {copy.contactTitle}

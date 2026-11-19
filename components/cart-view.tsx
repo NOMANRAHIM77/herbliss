@@ -26,7 +26,7 @@ export function CartView({ customer }: { customer?: CheckoutCustomer }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Button asChild>
-            <Link href="/#collection">Explore the collection</Link>
+            <Link href="/">Home</Link>
           </Button>
           <Button disabled>Checkout</Button>
         </div>

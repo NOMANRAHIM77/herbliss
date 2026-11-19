@@ -10,7 +10,7 @@ export function ProductGallery({ images }: { images: ProductImage[] }) {
   const [selected, setSelected] = useState(0);
   const current = images[selected];
   return (
-    <div>
+    <div className="max-w-full min-w-0">
       <div className="border-brand-deep/10 bg-secondary relative aspect-[3/4] overflow-hidden rounded-3xl border shadow-sm">
         <StoreImage
           src={current.src}

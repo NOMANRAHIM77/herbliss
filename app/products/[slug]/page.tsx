@@ -108,9 +108,9 @@ export default async function ProductPage({ params }: Props) {
           </li>
         </ol>
       </nav>
-      <div className="grid items-start gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+      <div className="grid min-w-0 grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14">
         <ProductGallery key={product.id} images={images} />
-        <div className="lg:pt-2">
+        <div className="min-w-0 lg:pt-2">
           <p className="text-brand-deep mb-3 text-xs font-semibold tracking-[0.18em] uppercase">
             {site.name}
           </p>
@@ -173,7 +173,7 @@ export default async function ProductPage({ params }: Props) {
               {!product.shippingIncluded &&
                 " · " + formatPrice(site.shipping.feePaisa)}
             </h2>
-            <p className="mt-1 text-sm font-medium leading-5 text-white/90">
+            <p className="mt-1 text-sm leading-5 font-medium text-white/90">
               {copy.deliveryEstimate}
             </p>
             <ol className="relative mt-4 grid grid-cols-3 before:pointer-events-none before:absolute before:inset-x-[16.6667%] before:top-5 before:border-t before:border-dashed before:border-white/50">
@@ -229,27 +229,40 @@ export default async function ProductPage({ params }: Props) {
               ))}
             </details>
           </div>
-          <p className="text-muted-foreground mt-5 text-xs leading-5">
-            {homeContent.draftNote}
-          </p>
         </div>
       </div>
-      <section aria-labelledby="product-description" className="mt-12 rounded-3xl border border-brand-deep/10 bg-secondary/60 p-6 sm:p-10 lg:mt-16">
+      <section
+        aria-labelledby="product-description"
+        className="border-brand-deep/10 bg-secondary/60 mt-12 rounded-3xl border p-6 sm:p-10 lg:mt-16"
+      >
         <div className="max-w-4xl">
-          <h2 id="product-description" className="mb-6 text-2xl font-semibold tracking-tight">{copy.description}</h2>
-          <div className="space-y-4 text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8">
-            {story.paragraphs.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
+          <h2
+            id="product-description"
+            className="mb-6 text-2xl font-semibold tracking-tight"
+          >
+            {copy.description}
+          </h2>
+          <div className="text-muted-foreground space-y-4 text-sm leading-7 sm:text-base sm:leading-8">
+            {story.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
           <ul className="my-7 grid gap-3 sm:grid-cols-2">
-            {story.highlights.map(highlight => (
-              <li key={highlight.text} className="flex items-start gap-3 rounded-xl border border-brand-deep/10 bg-white px-4 py-3 text-sm leading-6">
-                <span aria-hidden="true" className="shrink-0 text-lg">{highlight.icon}</span>
+            {story.highlights.map((highlight) => (
+              <li
+                key={highlight.text}
+                className="border-brand-deep/10 flex items-start gap-3 rounded-xl border bg-white px-4 py-3 text-sm leading-6"
+              >
+                <span aria-hidden="true" className="shrink-0 text-lg">
+                  {highlight.icon}
+                </span>
                 <span>{highlight.text}</span>
               </li>
             ))}
           </ul>
-          <p className="text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8">{story.closing}</p>
-          <p className="mt-5 text-xs leading-5 text-muted-foreground">{homeContent.draftNote}</p>
+          <p className="text-muted-foreground text-sm leading-7 sm:text-base sm:leading-8">
+            {story.closing}
+          </p>
         </div>
       </section>
     </main>

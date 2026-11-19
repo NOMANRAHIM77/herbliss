@@ -70,17 +70,12 @@ export default function HomePage() {
             />
           </div>
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-4 lg:gap-x-12">
-            {products.map((product, index) => (
+            {products.map((product) => (
               <article
                 key={product.slug}
                 id={product.category}
                 className="mx-auto flex h-full w-full max-w-72 min-w-0 flex-col"
               >
-                <div
-                  className={`${index < 2 ? "hidden lg:flex" : "flex"} mb-2 h-14 items-end justify-end sm:h-16`}
-                >
-                  <BundleBadges product={product} />
-                </div>
                 <Link
                   href={"/products/" + product.slug}
                   className="group relative block aspect-[3/4] shrink-0 overflow-hidden rounded-2xl"
@@ -92,6 +87,9 @@ export default function HomePage() {
                     className="block h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025] motion-reduce:transform-none"
                     sizes="(max-width: 639px) 45vw, (max-width: 1023px) 288px, 241px"
                   />
+                  <div className="absolute top-2 right-2 z-10 max-w-[calc(100%-1rem)]">
+                    <BundleBadges product={product} />
+                  </div>
                 </Link>
                 <div className="flex flex-1 flex-col pt-3 sm:pt-4">
                   <h3 className="min-h-[3.75rem] text-xs leading-5 font-semibold tracking-tight sm:min-h-12 sm:text-sm sm:leading-6">
